@@ -1,8 +1,9 @@
 # Data Economy Hackathon
 IPFS Huggingface Bridge
 
-Author - Benjamin Barber
-QA - Kevin De Haan
+Author - Benjamin Barber @endomorphosis
+
+QA / website - Kevin De Haan @coregod360
 
 CLEANUP / Windows compatibility / Breakfix 03/31/2024 - 04/07/2024
 
