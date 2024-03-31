@@ -13,7 +13,9 @@ This is a model manager and wrapper for huggingface, looks up a index of models 
 
 # How to use
 
-setup.py
+to install
+ 
+python3 setup.py
 
 In your python script
 
