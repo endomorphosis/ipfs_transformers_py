@@ -19,7 +19,7 @@ In your python script
 
 from transformers import AutoModelForSeq2SeqLM
 
-from ipfs_huggingface_bridge import AutoModelForSeq2SeqLM
+from ipfs_transformers import AutoModelForSeq2SeqLM
 
 model = AutoModelForSeq2SeqLM.from_auto_download("google/t5_11b_trueteacher_and_anli")
 
@@ -27,7 +27,7 @@ or
 
 from transformers import AutoModelForSeq2SeqLM
 
-from ipfs_huggingface_bridge import AutoModelForSeq2SeqLM
+from ipfs_transformers import AutoModelForSeq2SeqLM
 
 model = AutoModelForSeq2SeqLM.from_ipfs("QmWJr4M1VN5KpJjqCsJsJg7PDmFoqQYs1BKpYxcdMY1qkh")
 
