@@ -4,6 +4,7 @@ import tempfile
 import json
 import math
 import sys
+import time
 test_folder = os.path.dirname(os.path.dirname(__file__)) + "/test"
 sys.path.append(test_folder)
 import test_fio
@@ -14,7 +15,7 @@ Description=IPFS Daemon
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/ipfs daemon --enable-gc --enable-pubsub-experiment
+ExecStart=/usr/local/bin/ipfs daemon --enable-gc --enable-pubsub-experiment \"
 Restart=on-failure
 User=root
 Group=root
@@ -38,6 +39,8 @@ Group=root
 WantedBy=multi-user.target
 
 """
+
+#NOTE FIX THIS SYSTEMCTL SERVICE
 
 ipfs_cluster_follow = """
 [Unit]
@@ -92,6 +95,7 @@ class install_ipfs:
 			if "ipfs_path" in meta:
 				if meta['ipfs_path'] is not None:
 					self.ipfs_path = meta['ipfs_path']
+					#NOTE bug invalid permissions check
 					if not os.path.exists(self.ipfs_path):
 						os.makedirs(self.ipfs_path)
 					test_disk = test_fio.test_fio(None)
@@ -173,17 +177,20 @@ class install_ipfs:
 					command = "ipfs --version"
 					results = subprocess.check_output(command, shell=True)
 					results = results.decode()
-					with open("/etc/systemd/system/ipfs.service", "w") as file:
-						file.write(ipfs_service)
-					command = "systemctl enable ipfs"
-					results = subprocess.check_output(command, shell=True)
-					results = results.decode()
+					
+					if os.getuid() == 0:
+						with open("/etc/systemd/system/ipfs.service", "w") as file:
+							file.write(ipfs_service)
+
+					else:
+						#NOTE: Clean this up and make better logging or drop the error all together
+						print('You need to be root to write to /etc/systemd/system/ipfs.service')
 
 					if "ipfs" in results:
 						return True
 					else:
 						return False
-						
+
 	def install_ipfs_cluster_follow(self):
 		try:
 			detect = subprocess.check_output("which ipfs-cluster-follow",shell=True)
@@ -209,11 +216,14 @@ class install_ipfs:
 				command = "ipfs-cluster-follow --version"
 				results = subprocess.check_output(command, shell=True)
 				results = results.decode()
-				with open("/etc/systemd/system/ipfs-cluster-follow.service", "w") as file:
-					file.write(ipfs_cluster_follow)
-				command = "systemctl enable ipfs-cluster-follow"
-				results = subprocess.check_output(command, shell=True)
-				results = results.decode()
+				
+				if os.geteuid() == 0:
+					with open("/etc/systemd/system/ipfs-cluster-follow.service", "w") as file:
+						file.write(ipfs_cluster_follow)
+				else:
+					#NOTE: Clean this up and make better logging or drop the error all together
+					print('You need to be root to write to /etc/systemd/system/ipfs-cluster-follow.service')
+				
 				if "ipfs-cluster-follow" in results:
 					return True
 				else:
@@ -274,11 +284,15 @@ class install_ipfs:
 				command = "ipfs-cluster-service --version"
 				results = subprocess.check_output(command, shell=True)
 				results = results.decode()
-				with open("/etc/systemd/system/ipfs-cluster-service.service", "w") as file:
-					file.write(ipfs_cluster_service)
-				command = "systemctl enable ipfs-cluster-service"
-				results = subprocess.check_output(command, shell=True)
-				results = results.decode()
+				
+				if os.geteuid() == 0:
+					with open("/etc/systemd/system/ipfs-cluster-service.service", "w") as file:
+						file.write(ipfs_cluster_service)
+
+				else:
+					#NOTE: Clean this up and make better logging or drop the error all together
+					print('You need to be root to write to /etc/systemd/system/ipfs-cluster-service.service')
+
 				if "ipfs-cluster-service" in results:
 					return True
 				else:
@@ -350,9 +364,20 @@ class install_ipfs:
 				raise Exception("ipfs_path is None")
 		ipfs_path = os.path.join(ipfs_path, "ipfs") + "/"
 		try:
-			command1 = "IPFS_PATH="+ ipfs_path +" ipfs-cluster-service init -f"
-			results1 = subprocess.check_output(command1, shell=True)
-			results1 = results1.decode()
+			if os.getuid() == 0:
+				command0 = "systemctl enable ipfs-cluster-service"
+				results0 = subprocess.check_output(command0, shell=True)
+
+				command1 = "IPFS_PATH="+ ipfs_path +" ipfs-cluster-service init -f"
+				results1 = subprocess.check_output(command1, shell=True)
+				results1 = results1.decode()
+
+			else:
+				command1 = "IPFS_PATH="+ ipfs_path +" ipfs-cluster-service init -f"
+				results1 = subprocess.check_output(command1, shell=True)
+				results1 = results1.decode()
+				# TODO: Add test cases to all the config functions
+
 		except Exception as e:
 			results1 = str(e)
 		finally:
@@ -483,10 +508,25 @@ class install_ipfs:
 			this_dir = os.path.dirname(__file__)
 			dst_path = ipfs_path
 			try:
-				#command1 = "IPFS_CLUSTER_PATH="+ ipfs_path +" ipfs-cluster-follow ipfs_cluster init " + cluster_name
-				command1 = "ipfs-cluster-follow " + cluster_name + " init " + ipfs_path
-				results1 = subprocess.check_output(command1, shell=True)
-				results1 = results1.decode() 
+				if os.getuid() == 0:
+					# Add enabler for ipfs-cluster-follow from the install into the config 
+					command0 = "systemctl enable ipfs-cluster-follow"
+					results0 = subprocess.check_output(command0, shell=True)
+
+					#command1 = "IPFS_CLUSTER_PATH="+ ipfs_path +" ipfs-cluster-follow ipfs_cluster init " + cluster_name
+					command1 = "ipfs-cluster-follow " + cluster_name + " init " + ipfs_path
+					results1 = subprocess.check_output(command1, shell=True)
+					results1 = results1.decode() 
+
+					# TODO: Add test cases
+				else:
+					#command1 = "IPFS_CLUSTER_PATH="+ ipfs_path +" ipfs-cluster-follow ipfs_cluster init " + cluster_name
+					command1 = "ipfs-cluster-follow " + cluster_name + " init " + ipfs_path
+					results1 = subprocess.check_output(command1, shell=True)
+					results1 = results1.decode() 
+
+					print('You need to be root to write to /etc/systemd/system/ipfs-cluster-follow.service')				
+				
 			except Exception as e:
 				results1 = str(e)
 			finally:
@@ -534,8 +574,15 @@ class install_ipfs:
 			finally:
 				pass
 			new_ipfs_cluster_follow = ipfs_cluster_follow.replace("run"," "+ cluster_name + " run")
-			with open("/etc/systemd/system/ipfs-cluster-follow.service", "w") as file:
-				file.write(new_ipfs_cluster_follow)
+			
+			if os.geteuid() == 0:
+				with open("/etc/systemd/system/ipfs-cluster-follow.service", "w") as file:
+					file.write(new_ipfs_cluster_follow)
+			else:
+				#NOTE: Clean this up and make better logging or drop the error all together
+				print('You need to be root to write to /etc/systemd/system/ipfs-cluster-follow.service')
+			
+			# TODO: Add test cases to all the config functions
 
 			#command = "ps -ef | grep ipfs | grep -v grep | awk '{print $2}' | xargs kill -9"
 			#results = subprocess.run(command, shell=True)
@@ -574,8 +621,11 @@ class install_ipfs:
 			if self.ipfs_path is None:
 				raise Exception("ipfs_path is None")
 
+		if ipfs_path[-1] != "/":
+			ipfs_path = ipfs_path + "/ipfs/"
+		else:
+			ipfs_path = ipfs_path + "ipfs/"
 
-		ipfs_path = ipfs_path + "ipfs/"
 		os.makedirs(ipfs_path, exist_ok=True)
 		if disk_stats is not None and ipfs_path is not None and disk_stats is not None:
 			try:
@@ -630,6 +680,7 @@ class install_ipfs:
 				if peer != "":
 					try:
 						command6 = "IPFS_PATH="+ ipfs_path + " ipfs bootstrap add " + peer
+						# TODO: Permission error on the config when installing as user
 						results6 = subprocess.check_output(command6, shell=True)
 						results6 = results6.decode()
 					except Exception as e:
@@ -645,10 +696,58 @@ class install_ipfs:
 				pass
 
 			if os.geteuid() == 0:
-				ipfs_service_text = ipfs_service.replace("ExecStart=","ExecStart=export IPFS_PATH="+ ipfs_path + " && ")
+				ipfs_service_text = ipfs_service.replace("ExecStart=","ExecStart= bash -c \"export IPFS_PATH="+ ipfs_path + " && ")
 				with open("/etc/systemd/system/ipfs.service", "w") as file:
 					file.write(ipfs_service_text)
+
+				try:
+					# Reload daemon
+					command11 = "systemctl daemon-reload"
+					results11 = subprocess.Popen(command11, shell=True)
+					
+					# Enable service 
+					command0 = "systemctl enable ipfs"
+					results0 = subprocess.Popen(command0, shell=True)
+
+					# Start daemon
+					command22 = "systemctl start ipfs"
+					results22 = subprocess.Popen(command22, shell=True)
+
+					# Check if daemon is running
+					command3 = "ps -ef | grep ipfs | grep daemon | grep -v grep | wc -l"
+					results3 = subprocess.check_output(command3, shell=True)
+					results3 = results3.decode()
+
+					if(int(results3) > 0):
+							# Downloads image from ipfs as a test
+							command5 = "bash -c \"export IPFS_PATH="+ ipfs_path + " && ipfs cat /ipfs/QmSgvgwxZGaBLqkGyWemEDqikCqU52XxsYLKtdy3vGZ8uq >" + ipfs_path + "/test.jpg \" " 
+							results5 = subprocess.Popen(command5, shell=True)
+
+							# Time out for 2 seconds to allow the file to download
+							time.sleep(5)	 
+
+							if os.path.exists(ipfs_path + "/test.jpg"):
+								if os.path.getsize(ipfs_path + "/test.jpg") > 0:
+									# Remove the test file
+									pass
+								else:
+									raise Exception("ipfs failed to download test file")
+							
+							os.remove(ipfs_path + "/test.jpg")
+								
+					else:
+						raise Exception("ipfs failed to download test file")
+			
+				except Exception as e:
+					# Should this return an error or log it like line 673
+					return str(e)
+
+				finally:
+					command6 = "systemctl stop ipfs"
+					results6 = subprocess.Popen(command6, shell=True)
+
 			else:
+				#NOTE: Not sure if this needs to logged or excepted 
 				print('You need to be root to write to /etc/systemd/system/ipfs.service')
 
 			if "exit" not in results1:
@@ -718,7 +817,10 @@ class install_ipfs:
 		else:
 			ipfs_path = self.ipfs_path
 
-		ipfs_path = ipfs_path + "ipfs/"
+		if ipfs_path[-1] != "/":
+			ipfs_path = ipfs_path + "/ipfs/"
+		else:
+			ipfs_path = ipfs_path + "ipfs/"
 		os.makedirs(ipfs_path, exist_ok=True)
 
 		try:
@@ -735,14 +837,112 @@ class install_ipfs:
 		try:
 			command = "ps -ef | grep ipfs | grep daemon | grep -v grep | awk '{print $2}' | xargs kill -9"
 			results = subprocess.run(command, shell=True)
+
+			command = "which ipfs"
+			results = subprocess.check_output(command, shell=True)
+			results = results.decode()
+
+			command = "sudo rm " + results
+			results = subprocess.check_output(command, shell=True)
+			
+			command = "sudo rm -rf " + self.ipfs_path
+			results = subprocess.check_output(command, shell=True)
+
+			command = "sudo rm -rf /etc/systemd/system/ipfs.service"
+			results = subprocess.check_output(command, shell=True)
+			
+			return True
+		except Exception as e:
+			results = str(e)
+			return False
+		finally:
+			pass
+
+	def uninstall_ipfs_cluster_service(self):
+		# TODO: This needs to be tested
+		try:
+			command = "ps -ef | grep ipfs-cluster-service | grep -v grep | awk '{print $2}' | xargs kill -9"
+			results = subprocess.run(command, shell=True)
+			
+			command = "which ipfs-cluster-service"
+			results = subprocess.check_output(command, shell=True)
+			results = results.decode()
+			
+			command = "sudo rm " + results
+			results = subprocess.check_output(command, shell=True)
+			
+			command = "sudo rm -rf ~/.ipfs-cluster"
+			results = subprocess.check_output(command, shell=True)
+
+			command = "sudo rm -rf /etc/systemd/system/ipfs-cluster-service.service"
+			results = subprocess.check_output(command, shell=True)
+			
+			return True
+		except Exception as e:
+			results = str(e)
+			return False
+		finally:
+			pass
+
+
+
+	def uninstall_ipfs_cluster_follow(self):
+		try:
 			command = "ps -ef | grep  ipfs-cluster-follow | grep -v grep | awk '{print $2}' | xargs kill -9"
-			results = subprocess.run(command, shell=True)           
-			command = "rm -rf " + self.ipfs_path
+			results = subprocess.run(command, shell=True)
+			
+			command = "which ipfs-cluster-follow"
 			results = subprocess.check_output(command, shell=True)
 			results = results.decode()
-			command = "rm -rf ~/.ipfs-cluster-follow/ipfs_cluster/api-socket"
+			
+			command = "sudo rm " + results
+			results = subprocess.check_output(command, shell=True)
+			
+			command = "sudo rm -rf ~/.ipfs-cluster-follow"
+			results = subprocess.check_output(command, shell=True)
+
+			command = "sudo rm -rf /etc/systemd/system/ipfs-cluster-follow.service"
+			results = subprocess.check_output(command, shell=True)
+
+			return True
+		
+		except Exception as e:
+			results = str(e)
+			return False
+		finally:
+			pass
+
+
+	def uninstall_ipfs_cluster_ctl(self):
+		try:
+			command = "ps -ef | grep ipfs-cluster-ctl | grep -v grep | awk '{print $2}' | xargs kill -9"
+			results = subprocess.run(command, shell=True)
+
+			command = "which ipfs-cluster-ctl"
 			results = subprocess.check_output(command, shell=True)
 			results = results.decode()
+
+			command = "sudo rm " + results
+			results = subprocess.check_output(command, shell=True)
+			
+			return True
+		except Exception as e:
+			results = str(e)
+			return False
+		finally:
+			pass
+
+	def uninstall_ipget(self):
+		try:
+			command = "ps -ef | grep ipget | grep -v grep | awk '{print $2}' | xargs kill -9"
+			results = subprocess.run(command, shell=True)
+
+			command = "which ipget"
+			results = subprocess.check_output(command, shell=True)
+			results = results.decode()
+
+			command = "sudo rm " + results
+			results = subprocess.check_output(command, shell=True)
 			
 			return True
 		except Exception as e:
@@ -754,6 +954,7 @@ class install_ipfs:
 	def test_uninstall(self):
 		if self.role == "leecher" or self.role == "worker" or self.role == "master":
 			ipfs = self.uninstall_ipfs()
+			ipget = self.uninstall_ipget()
 			pass
 		if self.role == "master":
 			cluster_service  = self.uninstall_ipfs_cluster_service()
@@ -846,6 +1047,7 @@ class install_ipfs:
 			ipget = self.install_ipget()
 			ipfs = self.install_ipfs_daemon()
 			ipfs_config = self.config_ipfs(cluster_name = self.cluster_name, ipfs_path = self.ipfs_path)
+			# NOTE: This fails some times but never when debugging so probably some sort of race issue 
 			results["ipfs"] = ipfs
 			results["ipfs_config"] = ipfs_config["config"]
 			self.run_ipfs_daemon()
@@ -880,10 +1082,12 @@ if __name__ == "__main__":
 		"cluster_location":"/ip4/167.99.96.231/tcp/9096/p2p/12D3KooWKw9XCkdfnf8CkAseryCgS3VVoGQ6HUAkY91Qc6Fvn4yv",
 		#"cluster_location": "/ip4/167.99.96.231/udp/4001/quic-v1/p2p/12D3KooWS9pEXDb2FEsDv9TH4HicZgwhZtthHtSdSfyKKDnkDu8D",
 		"config":None,
-		"ipfs_path":"/home/kensix/.cache/ipfs/",
+		"ipfs_path":"/home/kensix/.cache/ipfs",
 	}
 	install = install_ipfs(None, meta=meta) 
-	# uninstall = install.uninstall_ipfs()
+	# results = install.test_uninstall()
+	
 	results = install.install_config()
+
 	print(results)
 	pass

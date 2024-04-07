@@ -16,10 +16,13 @@ import urllib3
 import shutil
 import subprocess
 parent_dir = os.path.dirname(os.path.dirname(__file__))
-ipfs_lib_dir = os.path.join(parent_dir, "ipfs_kit_lib")
-sys.path.append(ipfs_lib_dir)
+#ipfs_lib_dir = os.path.join(parent_dir, "ipfs_kit_lib")
+#ipfs_lib_dir2 = os.path.join(os.path.dirname(__file__), "ipfs_kit_lib")
+ipfs_transformers_dir = os.path.join(parent_dir, "ipfs_transformers")
+#sys.path.append(ipfs_lib_dir)
+#sys.path.append(ipfs_lib_dir2)
+sys.path.append(ipfs_transformers_dir)
 from ipfs_kit_lib import install_ipfs, ipfs, ipfs_cluster_ctl, ipfs_cluster_service, ipfs_cluster_follow, ipget
-from ipfs_kit_lib import install_ipfs
 
 class ipfs_kit:
     def __init__(self, resources, meta=None):
@@ -30,7 +33,7 @@ class ipfs_kit:
         self.ipfs_set_config_value = self.ipfs_set_config_value
         self.test_install = self.test_install
         self.ipfs_get = self.ipget_download_object
-        self.install_ipfs = install_ipfs.install_ipfs(None, None)
+        self.install_ipfs = install_ipfs.install_ipfs_daemon(None)
 
         if meta is not None:
             if "config" in meta:

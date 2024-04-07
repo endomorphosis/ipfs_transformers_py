@@ -31,6 +31,7 @@ class ipget:
                 pass
         
     def ipget_download_object(self, **kwargs):
+        # NOTE: Make sure this function can download both files and folders 
         if "cid" not in kwargs:
             raise Exception("cid not found in kwargs")
         if "path" not in kwargs:
@@ -41,7 +42,7 @@ class ipget:
         if not os.path.exists(os.path.dirname(kwargs['path'])):
             os.makedirs(os.path.dirname(kwargs['path']))
             
-        command = "export IPFS_PATH=" + self.ipfs_path + "ipfs/ && ipfs get " + kwargs['cid'] + " -o " + kwargs['path']
+        command = "export IPFS_PATH=" + self.ipfs_path + " && ipfs get " + kwargs['cid'] + " -o " + kwargs['path']
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         start_time = time.time()
@@ -49,6 +50,9 @@ class ipget:
 
         while True:
             if process.poll() is not None:
+                stdout, stderr = process.communicate()
+                stdout.decode()
+                stderr.decode()
                 break
 
             if time.time() - start_time > timeout:
@@ -70,16 +74,24 @@ class ipget:
         }
         return metadata
 
+# NOTE: Create test that feeds ipget_download_object with a CID and the path to local_path
+
     def test_ipget(self):
         detect = os.system("which ipget")
-        if len(detect) > 0:
+        if int(detect) > 0 or True:
+            ipget_download_object = self.ipget_download_object(cid="QmccfbkWLYs9K3yucc6b3eSt8s8fKcyRRt24e3CDaeRhM1", path="/tmp/test")
             return True
         else:
             return False
         pass
 
 if __name__ == "__main__":
-    this_ipget = ipget()
+    this_ipget = ipget(None, meta={"role":"leecher","ipfs_path":"/tmp/test/"})
     results = this_ipget.test_ipget()
     print(results)
     pass
+
+# TODO:
+# TEST THIS COMMAND FOR OTHER PATHS
+# export IPFS_PATH=/mnt/ipfs/ipfs && ipfs get QmccfbkWLYs9K3yucc6b3eSt8s8fKcyRRt24e3CDaeRhM1 -o /tmp/test
+

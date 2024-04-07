@@ -38,6 +38,7 @@ class model_manager:
         self.this_model_path = None
         self.this_model = None
         self.this_model_name = None
+        self.s3cfg = None
         if meta is not None and type (meta) == dict:
             if "s3cfg" in meta:
                 self.s3cfg = meta["s3cfg"]
@@ -96,8 +97,9 @@ class model_manager:
         if not os.path.exists(self.local_path):
             os.makedirs(self.local_path)
         ipfs_path_files = os.listdir(ipfs_path)
-        
-		# NOTE: Changed or to and in this if so install only runs if there is no ipfs in any of the possible locations
+        # NOTE there is no systemctl daemon reload.
+        # NOTE: Changed or to and in this if so install only runs if there is no ipfs in any of the possible locations
+        # NOTE: make sure all instances of IPFS daemon are started either as a service or with os.system() or with process.popen()
         if ".ipfs" not in homedir_files and "ipfs" not in ipfs_path_files and os.path.exists(ipfs_path):
             self.install_ipfs.install_ipfs_daemon()
             self.install_ipfs.install_ipget()
@@ -296,7 +298,7 @@ class model_manager:
                 # NOTE: Changed to use filename_dst instead of basename so it's the same as the ipfs download function -fregg
                 suffix = "." + filename_dst.split(".")[-1]
                 with tempfile.NamedTemporaryFile(suffix=suffix, dir="/tmp", delete=False) as this_temp_file:
-                    this_file_key = s3_src.split(s3cfg["bucket"]+"/")[1]
+                    this_file_key = s3_src.split(self.s3cfg["bucket"]+"/")[1]
                     results = self.s3_kit.s3_dl_file(s3_src, this_temp_file.name, self.s3cfg["bucket"])
                     if results is not None and len(results) > 0:
                         shutil.move(results["local_path"], filename_dst)
@@ -329,26 +331,50 @@ class model_manager:
                 # if not os.path.exists(basename):
                 #     os.mkdir(basename)
                 
-                suffix = "." + filename_dst.split(".")[-1]
-                with tempfile.NamedTemporaryFile(suffix=suffix, dir="/tmp", delete=False) as this_temp_file:
-                    results = self.ipfs_kit.ipfs_get(cid = ipfs_src, path = this_temp_file.name)
-                    if "path" in list(results.keys()):
-                        results_file_name = results["path"]
-                        shutil.move(results_file_name, filename_dst)
-                        
-                        # NOTE: Add removal logic here -fregg
-                        if(os.path.exists(this_temp_file.name)):
-                            command = "rm "+this_temp_file.name
-                            os.system(command)
+                # Checks if the suffix is a valid file extension and not the cache folder Probably needs some work to handle other ipfs_path locations
+                if(".cache" not in filename_dst and "." in filename_dst ):
+                    suffix = "." + filename_dst.split(".")[-1]
+                    with tempfile.NamedTemporaryFile(suffix=suffix, dir="/tmp", delete=False) as this_temp_file:
+                        results = self.ipfs_kit.ipfs_get(cid = ipfs_src, path = this_temp_file.name)
+                        if "path" in list(results.keys()):
+                            results_file_name = results["path"]
+                            shutil.move(results_file_name, filename_dst)
+                            
+                            # NOTE: Add removal logic here -fregg
+                            if(os.path.exists(this_temp_file.name)):
+                                command = "rm "+this_temp_file.name
+                                os.system(command)
 
-                        return filename_dst
-                    else:
-                        raise Exception("No path in results or timeout")                              
+                            return filename_dst
+                        else:
+                            raise Exception("No path in results or timeout")                              
+                else:
+                    # Download folder
+                    with tempfile.TemporaryDirectory(dir="/tmp") as tempdir:
+                        results = self.ipfs_kit.ipfs_get(cid = ipfs_src, path = tempdir)
+                        
+                        if os.path.exists(filename_dst):
+                            pass
+                        else:
+                            os.mkdir(filename_dst)
+
+                        if filename_dst[-1] == "/":
+                            pass
+                        else:
+                            filename_dst = filename_dst + "/"
+
+                        for file in os.scandir(tempdir):
+                            if file.is_file():
+                                shutil.move(file.path, filename_dst + file.name)
+
+                    return filename_dst
+                    
             except Exception as e:
                 print("Exception thrown remove files")
-                if(os.path.exists(this_temp_file.name)):
-                    command = "rm "+this_temp_file.name
-                    os.system(command)
+                if(this_temp_file != None):
+                    if(os.path.exists(this_temp_file.name)):
+                        command = "rm "+this_temp_file.name
+                        os.system(command)
                 return e
             
         else:
@@ -1711,53 +1737,3 @@ class model_manager:
         self.evict_zombies()
         return self
     
-# if __name__ == "__main__":
-#     endpoint = ""
-#     access_key = ""
-#     secret_key = ""
-#     host_bucket = ""
-#     bucket = ""
-#     ipfs_src = "QmXBUkLywjKGTWNDMgxknk6FJEYu9fZaEepv3djmnEqEqD"
-#     s3cfg = {
-#         "endpoint": endpoint,
-#         "accessKey": access_key,
-#         "secretKey": secret_key,
-#         "hostBucket": host_bucket,   
-#         "bucket": bucket
-#     }
-#     cluster_name = ""
-#     ipfs_path = ""
-#     local_path = ""
-#     ipfs_path = ""
-#     ten_mins = 600
-#     ten_hours = 60000
-#     ten_days = 864000
-#     never =  100000000
-#     role = "worker"
-#     cache = {
-#         "local": "/storage/cloudkit-models/collection.json",
-#         "s3": "s3://cloudkit-beta/collection.json",
-#         "ipfs": "QmXBUkLywjKGTWNDMgxknk6FJEYu9fZaEepv3djmnEqEqD",
-#         "https": "https://huggingface.co/endomorphosis/cloudkit-collection/resolve/main/collection.json"
-#     }
-#     timing = {
-#         "local_time": ten_mins,
-#         "s3_time": ten_hours,
-#         "ipfsTime": ten_days,
-#         "httpsTime": never,
-#     }
-#     meta = {
-#         "s3cfg": s3cfg,
-#         "ipfs_src": ipfs_src,
-#         "timing": timing,
-#         "cache": cache,
-#         "role": role,
-#         "cluster_name": cluster_name,
-#         "ipfs_path": ipfs_path,
-#         "local_path": local_path,
-#         "ipfs_path": ipfs_path
-#     }
-
-#     models_manager = model_manager(None, meta= meta)
-#     results = models_manager.test()
-#     print(results)

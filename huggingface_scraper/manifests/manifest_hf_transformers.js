@@ -1,7 +1,9 @@
 import {complete, open_ended_question, multiple_choice_question, parse_templates, generate_template, generate_metadata_template, generate_hwrequirements_template} from '../utils.js'
 import prompt_sync from 'prompt-sync'
 import prompt_sync_history from 'prompt-sync-history'
-
+import models_generate_hf_transformers from '../modeldata/generate_hf_transformers.json' assert { type: 'json' };
+import fs from 'fs'
+import path, { parse } from 'path'
 
 export class Manifest_hf_transformers{
     constructor(){
@@ -16,21 +18,20 @@ export class Manifest_hf_transformers{
     }
 
     main(generate){
-        let self = this
         let generation = hf_transformers_generate(generate)
         for (var key in generation){
-            self[key] = generation[key]
+            this[key] = generation[key]
         }
-        return self
+        return this
     }
 
-    calc(self){
-        return hf_transformers_calc(self)
+    calc(){
+        return hf_transformers_calc()
     }
 }
 
 
-export default function hf_transformers_calc(self){
+export default function hf_transformers_calc(){
 
     let prompt = prompt_sync(({
         history: prompt_sync_history(),
@@ -215,4 +216,15 @@ export function hf_transformers_generate_hwrequirements(generate){
     results["diskUsage"] = results["gpuMemory"] * model_padding
 
     return results
+}
+
+export function hf_transformers_add(generation){
+    if (generation.modelName != undefined){
+        models_generate_hf_transformers[generation.modelName] = generation
+        fs.writeFileSync(path.resolve('../modeldata/generate_hf_transformers.json'), JSON.stringify(models_generate_hf_transformers, null, 2))       
+        return Object.keys(models_generate_hf_transformers)
+    }
+    else{
+        throw "model name is undefined"
+    }      
 }

@@ -1,7 +1,9 @@
 import {complete, open_ended_question, multiple_choice_question, parse_templates, generate_template, generate_metadata_template, generate_hwrequirements_template} from '../utils.js'
 import prompt_sync from 'prompt-sync'
 import prompt_sync_history from 'prompt-sync-history'
-
+import models_generate_hf_lm from '../modeldata/generate_hf_lm.json' assert { type: 'json' };
+import fs from 'fs'
+import path, { parse } from 'path'
 
 export class Manifest_hf_lm{
     constructor(){
@@ -16,22 +18,19 @@ export class Manifest_hf_lm{
     }
 
     main(generate){
-        let self = this
         let generation = hf_lm_generate(generate)
         for (var key in generation){
-            self[key] = generation[key]
+            this[key] = generation[key]
         }
-        return self
+        return this
     }
 
-    calc(self){
-        return hf_lm_calc(self)
+    calc(){
+        return hf_lm_calc()
     }
 }
 
-
-export default function hf_lm_calc(self){
-
+export default function hf_lm_calc(){
 
     let prompt = prompt_sync(({
         history: prompt_sync_history(),
@@ -257,4 +256,15 @@ export function hf_lm_generate_hwrequirements(generate){
     results["gpuMemory"] = generate.parameters * 2 * model_padding
     results["diskUsage"] = results["gpuMemory"] * model_padding
     return results
+}
+
+export function hf_lm_add(generation){
+    if (generation.modelName != undefined){
+        models_generate_hf_lm[generation.modelName] = generation
+        fs.writeFileSync(path.resolve('../modeldata/generate_hf_lm.json'), JSON.stringify(models_generate_hf_lm, null, 2))       
+        return Object.keys(models_generate_hf_lm)
+    }
+    else{
+        throw "model name is undefined"
+    }      
 }

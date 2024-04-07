@@ -1,4 +1,5 @@
 import os
+# TODO: Make template match updates from ipfs_transformers.py
 class AutoDownloadModel():
 	def __init__(self, collection=None, meta=None):
 		if os.getuid() == 0:
@@ -63,7 +64,7 @@ class AutoDownloadModel():
 		self.model_manager = model_manager(collection, meta)
 		self.model_manager.load_collection_cache()
 		self.model_manager.state()
-		
+				
 	def download(self, **kwargs):
 		# NOTE: Add kwarg for output directory where downloads are stored
 		# if "local_path" in kwargs:
@@ -103,7 +104,6 @@ class AutoDownloadModel():
 				pass
 			return os.path.join(self.local_path, cid)
 		pass
-
 
 
 class ASTConfig(): 

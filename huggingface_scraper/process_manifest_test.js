@@ -90,10 +90,10 @@ export function test5(){
 function test6(){
     let collection_path = "/storage/cloudkit-models/collection.json"
     let mysql_creds = {
-        host: "",
-        user: "",
-        password: "",
-        database: "",
+        host: "swissknife.mwni.io",
+        user: "swissknife",
+        password: "W5!LIGO[pRPO0SdH",
+        database: "swissknife",
     }
     let collection = fs.readFileSync(collection_path)
     collection = JSON.parse(collection)

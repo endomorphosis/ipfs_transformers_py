@@ -1,6 +1,7 @@
 import {complete, open_ended_question, multiple_choice_question, parse_templates, generate_template, generate_metadata_template, generate_hwrequirements_template} from '../utils.js'
 import prompt_sync from 'prompt-sync'
 import prompt_sync_history from 'prompt-sync-history'
+import models_generate_api from '../modeldata/generate_api.json' assert { type: 'json' };
 
 export class Manifest_api{
     constructor(){
@@ -15,21 +16,19 @@ export class Manifest_api{
     }
 
     main(generate){
-        let self = this
         let generation = api_generate(generate)
         for (var key in generation){
-            self[key] = generation[key]
+            this[key] = generation[key]
         }
-        return self
+        return this
     }
 
-    calc(self){
-        return api_calc_calc(self)
+    calc(){
+        return api_calc_calc()
     }
 }
 
-export default function api_calc(self){
-
+export default function api_calc(){
     let providers = ["openai","huggingface","custom"]
 
     let provider = multiple_choice_question("Select a provider: ", providers)
@@ -77,4 +76,15 @@ export function api_generate(generate){
     results.id = "api-" + generate.provider
     results.skill = "api"
     return results
+}
+
+export function api_add(generation){
+    if (generation.modelName != undefined){
+        models_generate_api[generation.modelName] = generation
+        fs.writeFileSync(path.resolve('../modeldata/generate_api.json'), JSON.stringify(models_generate_api, null, 2))       
+        return Object.keys(models_generate_api)
+    }
+    else{
+        throw "model name is undefined"
+    }      
 }

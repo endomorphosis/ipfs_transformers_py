@@ -16,11 +16,12 @@ import {complete, parse_templates, generate_test} from './utils.js'
 import process from 'process'
 
 export class Manifest{
-    constructor(s3_creds, hf_creds, mysql_creds, local_model_path, collection_path){
+    constructor(s3_creds, hf_creds, mysql_creds, local_model_path, ipfs_path, collection_path){
         this.id = ""
         this.format = ""
         this.hwRequirements = {}
         this.metadata = {}
+        this.env = process.env
         if (s3_creds != undefined){
             this.env.s3_creds = s3_creds
             this.s3_creds = s3_creds
@@ -33,6 +34,10 @@ export class Manifest{
             this.env.mysql_creds = mysql_creds
             this.mysql_creds = mysql_creds
         }
+        if (ipfs_path != undefined){
+            this.env.ipfs_path = ipfs_path
+            this.ipfs_path = ipfs_path
+        }
         if (local_model_path != undefined){
             this.env.local_model_path = local_model_path
             this.local_model_path = local_model_path
@@ -43,13 +48,26 @@ export class Manifest{
         }
     }
 
-    main(){
-        let self = this
-        let generation = generate_manifest.main(generate)
-        let manifest = generation.manifest
-        let folder = generation.folder
-        let generate = generation.generate
-        let processing = new process_manifest.main(manifest, folder, generate)
+    main(generated_manifest){
+        // depricated for the time being
+    }
+
+    process_prompted_manifest(generated_manifest){
+        let folder = path.join(this.local_model_path, generated_manifest["id"])
+        console.log("manifest.js")
+        console.log("process_generated_manifest(generate)")
+        console.log(generated_manifest)
+        console.log("folder")
+        console.log(folder)
+        let this_process_manifest = new process_manifest.process_manifest(
+            this.s3_creds,
+            this.hf_creds,
+            this.mysql_creds,
+            this.local_model_path,
+            this.ipfs_path,
+            this.collection_path
+        )
+        let processing = this_process_manifest.process_prompted_manifest(generated_manifest, folder)
         return processing
     }
 
@@ -62,31 +80,31 @@ export class Manifest{
     manifest_from_generator(this_generator){
         let generate = this_generator
         if (generate.skill == "hf_transformers"){
-            return hf_transformers_generate(generate)
+            return manifest_hf_transformers.hf_transformers_generate(generate)
         }
         if (generate.skill == "hf_embed"){
-            return hf_embed_generate(generate)
+            return manifest_hf_embed.hf_embed_generate(generate)
         }
         if (generate.skill == "llama_cpp"){
-            return manifest_llama_cpp(generate)
+            return manifest_llama_cpp.llama_cpp_generate(generate)
         }
         if (generate.skill == "diffusion"){
-            return diffusion_generate(generate)
+            return manifest_diffusion.diffusion_generate(generate)
         }
         if (generate.skill == "knn"){
-            return knn_generate(generate)
+            return manifest_knn.knn_generate(generate)
         }
         if (generate.skill == "hf_lm"){
-            return hf_lm_generate(generate)
+            return manifest_hf_lm.hf_lm_generate(generate)
         }
         if (generate.skill == "hf_t5"){
-            return hf_t5_generate(generate)
+            return manifest_hf_t5.hf_t5_generate(generate)
         }
         if (generate.skill == "api"){
-            return api_generate(generate)
+            return manifest_api.api_generate(generate)
         }
         if (generate.skill == "custom"){
-            return custom_generate(generate)
+            return manifest_custom.custom_generate(generate)
         }
     }
 

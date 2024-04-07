@@ -16,14 +16,16 @@ class test_hf_ipfs:
         from transformers import AutoModel
         #model = AutoModel.from_pretrained("google-bert/bert-base-cased")
         #what do we want to call the library?
-        from ipfs_transformers.ipfs_transformers import AutoModel
+        from ipfs_transformers import AutoModel
         #do we want to use the ipfs hash or the model name? This requires IPNS to be enabled
         #model = T5Model.from_ipfs("QmWJr4M1VN5KpJjqCsJsJg7PDmFoqQYs1BKpYxcdMY1qkh")
         #model = AutoModelForSeq2SeqLM.from_auto_download("t0") # 40GB test this afterwards
         # model = AutoModelForSeq2SeqLM.from_auto_download("stablelm-zephyr-3b-GGUF-Q2_K")  # 1.5GB
         
-        model = AutoModel.from_auto_download("bge-small-en-v1.5")  # 1.5GB
+        # model = AutoModel.from_auto_download("bge-small-en-v1.5")  # 1.5GB
+        model = AutoModel.from_ipfs("QmccfbkWLYs9K3yucc6b3eSt8s8fKcyRRt24e3CDaeRhM1")  # 1.5GB
         
+
         #model = T5Model.from_auto_download("google-bert/t5_11b_trueteacher_and_anli")
         print(dir(model))
         print("done")

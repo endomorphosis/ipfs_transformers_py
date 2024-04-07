@@ -1,7 +1,7 @@
 import {complete, open_ended_question, multiple_choice_question, parse_templates, generate_template, generate_metadata_template, generate_hwrequirements_template} from '../utils.js'
 import prompt_sync from 'prompt-sync'
 import prompt_sync_history from 'prompt-sync-history'
-
+import models_generate_knn from '../modeldata/generate_knn.json' assert { type: 'json' };
 
 export class Manifest_knn{
 
@@ -16,20 +16,19 @@ export class Manifest_knn{
     }
 
     main(generate){
-        let self = this
         let generation = knn_generate(generate)
         for (var key in generation){
-            self[key] = generation[key]
+            this[key] = generation[key]
         }
-        return self
+        return this
     }
 
-    calc(self){
-        return knn_calc(self)
+    calc(){
+        return knn_calc()
     }
 }
 
-export default function knn_calc(self){
+export default function knn_calc(){
 
     let prompt = prompt_sync(({
         history: prompt_sync_history(),
@@ -196,4 +195,15 @@ export function knn_generate(generate){
     results.skill = "knn"
     results.id = "knn-" + generate.modelName + "-" + generate.samples + "-" + generate.dimensions + "-" + generate.quantization
     return results
+}
+
+export function knn_add(generation){
+    if (generation.modelName != undefined){
+        models_generate_knn[generation.modelName] = generation
+        fs.writeFileSync(path.resolve('../modeldata/generate_knn.json'), JSON.stringify(models_generate_knn, null, 2))       
+        return Object.keys(models_generate_knn)
+    }
+    else{
+        throw "model name is undefined"
+    }      
 }

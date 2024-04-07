@@ -1,6 +1,9 @@
 import {complete, open_ended_question, multiple_choice_question, parse_templates, generate_template, generate_metadata_template, generate_hwrequirements_template} from '../utils.js'
 import prompt_sync from 'prompt-sync'
 import prompt_sync_history from 'prompt-sync-history'
+import models_generate_hf_embed from '../modeldata/generate_hf_embed.json' assert { type: 'json' };
+import fs from 'fs'
+import path, { parse } from 'path'
 
 export class Manifest_hf_embed{
     constructor(){
@@ -14,21 +17,22 @@ export class Manifest_hf_embed{
     }
 
     main(generate){
-        let self = this
         let generation = hf_embed_generate(generate)
         for (var key in generation){
-            self[key] = generation[key]
+            this[key] = generation[key]
         }
-        return self
+        return this
     }
 
-    calc(self){
-        return hf_embed_calc(self)
+    calc(){
+        return hf_embed_calc()
     }
 }
 
 
-export default function hf_embed_calc(self){
+
+
+export default function hf_embed_calc(){
     
     let model_name = open_ended_question("Enter a model name: ")
 
@@ -59,13 +63,11 @@ export default function hf_embed_calc(self){
 
     let contextSize = multiple_choice_question("Enter a the context size length: ", contextSize_options)
 
-    let dimensions_options = [128,256,512,1024,2048]
+    let dimensions_options = [128,256,512,1024,2048,4096]
     
     let dimensions = multiple_choice_question("how many dimensions are there?", dimensions_options)
 
     let model_size_options = []
-
-    let model_size = open_ended_question("What is the model size in GB? ")
 
     let embedding_template_options = ['embed', "instruct-embed"]
 
@@ -73,7 +75,7 @@ export default function hf_embed_calc(self){
 
     let content_type_options = ['text', 'image', 'audio', 'video']
 
-    let content_type = open_ended_question("Enter the content type: ", content_type_options)
+    let content_type = multiple_choice_question("Enter the content type: ", content_type_options)
 
     let generate = {}
     generate.parameters = parameters
@@ -82,11 +84,10 @@ export default function hf_embed_calc(self){
     generate.dimensions = dimensions
     generate.embedding_template = embedding_template
     generate.content_type = content_type
-    generate.model_size = model_size
     generate.format = format
     generate.location = location
     generate.source = source
-    generate.modelName = modelName
+    generate.modelName = model_name
     let results = hf_embed_generate(generate)
     return results
 }
@@ -107,6 +108,8 @@ export function hf_embed_generate_metadata(generate){
 }
 
 export function hf_embed_generate_hwrequirements(generate){
+    console.log("generate")
+    console.log(generate)
     let results = generate_hwrequirements_template(generate)
     let flopsPerUnit
     let tokensPerSecond
@@ -181,8 +184,18 @@ export function hf_embed_generate_hwrequirements(generate){
     results.gpuCount = gpuCount
     results.cpuCount = cpuCount
     results.flopsPerUnit = flopsPerUnit
-    results.minFlops = minFlops
-    results.minSpeed = results.minFlops.fp16 / 35.58 
+    if (Object.keys(minFlops).length != 0){
+        results.minFlops = minFlops
+    } 
+    else{
+        throw "minFlops is not defined"
+    }
+    if (generate.format == "fp16"){
+        results.minSpeed = results.minFlops["fp16"] / 35.58
+    }
+    else{
+        results.minSpeed = results.minFlops["fp32"] / 35.58
+    }
     results["cpuMemory"] = generate.parameters * 2 * model_padding
     results["gpuMemory"] = generate.parameters * 2 * model_padding
     results["diskUsage"] = results["gpuMemory"] * model_padding
@@ -196,4 +209,15 @@ export function hf_embed_generate(generate){
     results.id = generate.modelName 
     results.skill = "hf_embed"
     return results
+}
+
+export function hf_embed_add(generation){
+    if (generation.modelName != undefined){
+        models_generate_hf_embed[generation.modelName] = generation
+        fs.writeFileSync(path.resolve('../modeldata/generate_hf_embed.json'), JSON.stringify(models_generate_hf_embed, null, 2))       
+        return Object.keys(models_generate_hf_embed)
+    }
+    else{
+        throw "model name is undefined"
+    }      
 }

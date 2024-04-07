@@ -3,31 +3,36 @@ import process from 'process'
 import * as generate_manifest from './generate_manifest.js'
 
 export class Scraper {
-    constructor(s3_creds, hf_creds, mysql_creds, local_model_path, collection_path) {
+    constructor(s3_creds, hf_creds, mysql_creds, local_model_path, ipfs_path, collection_path) {
         this.env = process.env;
         if (s3_creds != undefined) {
-            this.env.s3_creds = s3_creds;
+            process.env.s3_creds = JSON.stringify(s3_creds);
             this.s3_creds = s3_creds;
         }
         if (hf_creds != undefined) {
-            this.env.hf_creds = hf_creds;
+            process.env.hf_creds = JSON.stringify(hf_creds);
             this.hf_creds = hf_creds;
         }
         if (mysql_creds != undefined) {
-            this.env.mysql_creds = mysql_creds;
+            process.env.mysql_creds = JSON.stringify(mysql_creds);
             this.mysql_creds = mysql_creds;
         }
         if (local_model_path != undefined) {
-            this.env.local_model_path = local_model_path;
+            process.env.local_model_path = local_model_path;
             this.local_model_path = local_model_path;
         }
+        if (ipfs_path != undefined) {
+            process.env.ipfs_path = ipfs_path;
+            this.ipfs_path = ipfs_path;
+        }
         if (collection_path != undefined) {
-            this.env.collection_path = collection_path;
+            process.env.collection_path = collection_path;
             this.collection_path = collection_path;
         }
     }
 
     main() {
+        console.log(this)
         let args = process.argv.slice(2);
         let command;
         let source;
@@ -54,39 +59,49 @@ export class Scraper {
         if (command == undefined) {
             //console.log("No command specified try -h or --help for help");
             let this_generate_manifest = new generate_manifest.Generate_Manifest();
-            let this_manifest = this_generate_manifest.main();
+            let this_manifest = this_generate_manifest.generate_from_prompt()
+            //remove keys 
+            delete this_manifest["s3_creds"];
+            delete this_manifest["hf_creds"];
+            delete this_manifest["mysql_creds"];
+            console.log("--this_manifest--");
+            console.log(this_manifest);
+//            console.log("--scraper class--");
+//            console.log(this)
             let this_process_manifest = new manifest.Manifest(
-                s3_creds = this.s3_creds,
-                hf_creds = this.hf_creds,
-                mysql_creds = this.mysql_creds,
-                local_model_path = this.local_model_path,
-                collection_path = this.collection_path
+                this.s3_creds,
+                this.hf_creds,
+                this.mysql_creds,
+                this.local_model_path,
+                this.ipfs_path,
+                this.collection_path
             );
-            this_process_manifest.main();
+            let processed_manifest = this_process_manifest.process_prompted_manifest(this_manifest);
         }
-
         if (command == 'import' && source != "hf") {
             throw new Error("Only hf is supported as a source");
         }
 
         if (command == "import" && source == "hf" && model == undefined) {
             let this_manifest = new manifest.Manifest(
-                s3_creds = this.s3_creds,
-                hf_creds = this.hf_creds,
-                mysql_creds = this.mysql_creds,
-                local_model_path = this.local_model_path,
-                collection_path = this.collection_path
+                this.s3_creds,
+                this.hf_creds,
+                this.mysql_creds,
+                this.local_model_path,
+                this.ipfs_path,
+                this.collection_path
             );
             this_manifest.import_from_hf();
         }
 
         if (command == "import" && source == "hf" && model != undefined) {
             let this_manifest = new manifest.Manifest(
-                s3_creds = this.s3_creds,
-                hf_creds = this.hf_creds,
-                mysql_creds = this.mysql_creds,
-                local_model_path = this.local_model_path,
-                collection_path = this.collection_path
+                this.s3_creds,
+                this.hf_creds,
+                this.mysql_creds,
+                this.local_model_path,
+                this.ipfs_path,
+                this.collection_path
             );
             this_manifest.import_from_hf(model);
         }

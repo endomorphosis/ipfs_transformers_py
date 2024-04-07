@@ -7,7 +7,7 @@ import generate_hf_embed from './modeldata/generate_hf_embed.json' assert { type
 import generate_hf_faster_whisper from './modeldata/generate_hf_faster_whisper.json' assert { type: 'json' };
 import generate_hf_lm from './modeldata/generate_hf_lm.json' assert { type: 'json' };
 import generate_hf_t5 from './modeldata/generate_hf_t5.json' assert { type: 'json' };
-import generate_hf_diffusion from './modeldata/generate_hf_diffusion.json' assert { type: 'json' };
+import generate_hf_diffusion from './modeldata/generate_diffusion.json' assert { type: 'json' };
 import generate_api from './modeldata/generate_api.json' assert { type: 'json' };
 import generate_knn from './modeldata/generate_knn.json' assert { type: 'json' };
 
@@ -249,15 +249,15 @@ export class Generator{
 
     main(){
         this
-        this.llama_cpp = template_llama_cpp(self.local_model_path, self.collection_path)
-        this.hf_transformers = template_hf_transformers(self.local_model_path, self.collection_path)
-        this.hf_embed = template_hf_embed(self.local_model_path, self.collection_path)
-        this.hf_faster_whisper = template_hf_faster_whisper(self.local_model_path, self.collection_path)
-        this.hf_lm = template_hf_lm(self.local_model_path, self.collection_path)
-        this.hf_t5 = template_hf_t5(self.local_model_path, self.collection_path)
-        this.hf_diffusion = template_hf_diffusion(self.local_model_path, self.collection_path)
-        this.api = template_api(self.local_model_path, self.collection_path)
-        this.knn = template_knn(self.local_model_path, self.collection_path)
-        return self 
+        this.llama_cpp = template_llama_cpp(this.local_model_path, this.collection_path)
+        this.hf_transformers = template_hf_transformers(this.local_model_path, this.collection_path)
+        this.hf_embed = template_hf_embed(this.local_model_path, this.collection_path)
+        this.hf_faster_whisper = template_hf_faster_whisper(this.local_model_path, this.collection_path)
+        this.hf_lm = template_hf_lm(this.local_model_path, this.collection_path)
+        this.hf_t5 = template_hf_t5(this.local_model_path, this.collection_path)
+        this.hf_diffusion = template_hf_diffusion(this.local_model_path, this.collection_path)
+        this.api = template_api(this.local_model_path, this.collection_path)
+        this.knn = template_knn(this.local_model_path, this.collection_path)
+        return this 
     }
 }

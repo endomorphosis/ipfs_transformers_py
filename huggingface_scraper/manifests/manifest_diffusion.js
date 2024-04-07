@@ -1,6 +1,7 @@
 import {complete, open_ended_question, multiple_choice_question, parse_templates, generate_template, generate_metadata_template, generate_hwrequirements_template} from '../utils.js'
 import prompt_sync from 'prompt-sync'
 import prompt_sync_history from 'prompt-sync-history'
+import models_generate_diffusion from '../modeldata/generate_diffusion.json' assert { type: 'json' };
 
 export class Manifest_diffusion{
     constructor(){
@@ -15,20 +16,19 @@ export class Manifest_diffusion{
     }
 
     main(generate){
-        let self = this
         let generation = diffusion_generate(generate)
         for (var key in generation){
-            self[key] = generation[key]
+            this[key] = generation[key]
         }
-        return self
+        return this
     }
 
-    calc(self){
-        return diffusion_calc(self)
+    calc(){
+        return diffusion_calc()
     }
 }
 
-export default function diffusion_calc(self){
+export default function diffusion_calc(){
 
     let prompt = prompt_sync(({
         history: prompt_sync_history(),
@@ -279,4 +279,15 @@ export function diffusion_generate(generate){
     results.metadata = diffusion_generate_metadata(generate)
     results.skill = "diffusion"
     return results
+}
+
+export function diffusion_add(generation){
+    if (generation.modelName != undefined){
+        models_generate_diffusion[generation.modelName] = generation
+        fs.writeFileSync(path.resolve('../modeldata/generate_diffusion.json'), JSON.stringify(models_generate_diffusion, null, 2))       
+        return Object.keys(models_generate_diffusion)
+    }
+    else{
+        throw "model name is undefined"
+    }      
 }

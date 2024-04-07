@@ -10,26 +10,15 @@ export class ipfsClusterCtl {
         this.queue = []
     }
 
-    __init__(self){
-        self = {}
-        self.stats = {}
-        self.queue = []
-        self.exec = {}
-        return self
-    }
-
     main(){
-        let self = this
-        self = self.__init__()
-        return self
+        return this
     }
 
 
     check_collection(collection){
-        let self = this
         let status = {}
         let collection_keys = Object.keys(collection)
-        let pinset_keys = Object.keys(self.pinset)
+        let pinset_keys = Object.keys(this.pinset)
         let orphan_models = []
         let orphan_pins = []
         let active_pins = []
@@ -83,7 +72,6 @@ export class ipfsClusterCtl {
     }
 
     execute(args){
-        let self = this
         let command
         let executable = "ipfs-cluster-ctl "
 
@@ -114,7 +102,7 @@ export class ipfsClusterCtl {
         }
 
         if (options.includes(args.command)){
-            self.exec = command
+            this.exec = command
             child_process.execSync(command, (error, stdout, stderr) => {
                     if (error) {
                         console.log(`error: ${error.message}`);
@@ -127,11 +115,11 @@ export class ipfsClusterCtl {
                     console.log(`stdout: ${stdout}`);
                 }
             )
-            return self
+            return this
         }
         else{
             console.log("command not found")
-            return self
+            return this
         }
     }
 
