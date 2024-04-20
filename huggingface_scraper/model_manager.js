@@ -58,7 +58,7 @@ class ModelManager {
             this.localPath = "/root/";
             localPath = this.localPath;
         } else {
-            this.localPath = "/home/" + username;
+            this.localPath = path.join(os.homeDir(), username);
             localPath = this.localPath;
         }
         if (meta !== null && typeof meta === 'object') {
@@ -1743,8 +1743,8 @@ class ModelManager {
 }
 
 const endpoint = "https://object.ord1.coreweave.com"
-const access_key = ""
-const secret_key = ""
+const access_key = "CWVFBNRZEEDYTAUM"
+const secret_key = "cwoBNj1ILmRGxcm18EsWE5Qth4hVtmtNJPkLVW2AETU"
 const host_bucket = "%(bucket)s.object.ord1.coreweave.com"
 const bucket = "cloudkit-beta";
 const ipfs_src = "QmXBUkLywjKGTWNDMgxknk6FJEYu9fZaEepv3djmnEqEqD";
