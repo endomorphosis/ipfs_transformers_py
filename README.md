@@ -91,13 +91,3 @@ import all models previously defined:
 ~~~shell
 node scraper.js hf 
 ~~~
-
-## TODO integrate orbitDB
-
-## TODO finish translating model manager to node.js and replace existing ipfs-cluster wrapper
-
-## TODO finish finish translating model manager to browser js and replace existing ipfs-cluster wrapper
-
-## TODO integrate transformers.js (browser implementation)
-
-## TODO integrate bacalhau dockerfile
