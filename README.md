@@ -28,6 +28,12 @@ https://github.com/endomorphosis/ipfs_agents
 for ipfs huggingface accelerate visit:
 https://github.com/endomorphosis/ipfs_accelerate
 
+for ipfs_kit visit:
+https://github.com/endomorphosis/ipfs_kit
+
+for ipfs_kit_js visit:
+https://github.com/endomorphosis/ipfs_kit_js
+
 Author - Benjamin Barber
 QA - Kevin De Haan
 
