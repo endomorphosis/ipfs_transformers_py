@@ -25,7 +25,7 @@ https://github.com/endomorphosis/ipfs_huggingface_scraper/
 for ipfs huggingface agents visit:
 https://github.com/endomorphosis/ipfs_agents
 
-for ipfs huggingface accelerate:
+for ipfs huggingface accelerate visit:
 https://github.com/endomorphosis/ipfs_accelerate
 
 Author - Benjamin Barber
