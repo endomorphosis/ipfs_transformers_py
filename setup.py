@@ -5,14 +5,12 @@ setup(
 	version='0.0.1',
 	packages=[
         'ipfs_transformers',
-        'ipfs_transformers.model_manager'
-        'ipfs_transformers.model_manager.ipfs_kit_lib',
-        'ipfs_transformers.model_manager.orbitdb_kit_lib',
 	],
 	install_requires=[
-        'ipfs_datasets@git+https://github.com/endomorphosis/ipfs_datasets.git',
-        'orbitdb_kit@git+https://github.com/endomorphosis/orbitdb_kit.git',
+        # 'ipfs_datasets@git+https://github.com/endomorphosis/ipfs_datasets.git',
+        # 'orbitdb_kit@git+https://github.com/endomorphosis/orbitdb_kit.git',
         'ipfs_kit@git+https://github.com/endomorphosis/ipfs_kit.git',
+        'ipfs_model_manager@git+https://github.com/endomorphosis/ipfs_model_manager.git',
         'transformers',
         'torch',
         'torchvision',
