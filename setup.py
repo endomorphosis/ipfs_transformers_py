@@ -16,8 +16,8 @@ setup(
         'torchvision',
         'numpy',
         'torchtext',
-		'urllib3',
-		'requests',
-		'boto3',
+        'urllib3',
+        'requests',
+        'boto3',
 	]
 )
