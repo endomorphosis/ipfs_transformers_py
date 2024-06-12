@@ -2,8 +2,8 @@ import os
 import sys
 import subprocess as process 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from ipfs_transformers.orbit_kit import orbit_kit
-class orbit_kit:
+from orbitdb_kit import orbitdb_kit
+class orbitdb_kit:
     def __init__(self, resources, meta=None):
         self.resources = resources
         self.meta = meta
@@ -22,6 +22,6 @@ class orbit_kit:
 if __name__ == '__main__':
     resources = {}
     meta = {}
-    orbit_kit = orbit_kit(resources, meta)
+    orbit_kit = orbitdb_kit(resources, meta)
     print(orbit_kit.get_resources())
 
