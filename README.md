@@ -1,5 +1,4 @@
-# DoraHack Data Economy Hackathon Presents
-IPFS Huggingface Bridge
+# IPFS Huggingface Bridge
 
 for transformers.js visit:                          
 https://github.com/endomorphosis/ipfs_transformers_js
