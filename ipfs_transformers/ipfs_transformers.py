@@ -60,8 +60,8 @@ class AutoDownloadModel():
 					"s3_cfg": self.s3cfg,
 					"role": self.role
 				}
-		from ipfs_model_manager import ipfs_model_manager as ipfs_model_manager
-		self.model_manager = ipfs_model_manager(collection, meta)
+		import ipfs_model_manager 
+		self.model_manager = ipfs_model_manager.ipfs_model_manager(resources=collection, meta=meta)
 		self.model_manager.load_collection_cache()	
 		self.model_manager.state()
 				
