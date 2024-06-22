@@ -49,6 +49,7 @@ class AutoDownloadModel():
 					self.role = meta["role"]
 				else:
 					self.role = "leecher"
+					pass
 			else:
 				self.local_path = os.path.join(os.getenv("HOME") , ".cache/huggingface/")
 				self.ipfs_path = os.path.join(os.getenv("HOME") , ".cache/ipfs/")
@@ -60,6 +61,9 @@ class AutoDownloadModel():
 					"s3_cfg": self.s3cfg,
 					"role": self.role
 				}
+				pass
+			pass
+		
 		import ipfs_model_manager 
 		self.model_manager = ipfs_model_manager.ipfs_model_manager(resources=collection, meta=meta)
 		self.model_manager.load_collection_cache()	
