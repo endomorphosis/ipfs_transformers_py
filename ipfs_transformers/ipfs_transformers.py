@@ -69,7 +69,7 @@ class AutoDownloadModel():
 		self.model_manager = ipfs_model_manager.ipfs_model_manager(resources=collection, meta=meta)
 		self.model_manager.load_collection_cache()
 		self.model_manager.load_collection()		
-		# self.model_manager.state()
+		self.model_manager.state(src = 'local')
 				
 	def download(self, **kwargs):
 		# NOTE: Add kwarg for output directory where downloads are stored
