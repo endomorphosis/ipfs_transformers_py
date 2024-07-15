@@ -57,7 +57,7 @@ for orbitdb_kit nodejs library visit:
 https://github.com/endomorphosis/orbitdb_kit/
 
 for fireproof_kit nodejs library visit:
-https://github.com/endomorphosis/fireproof-kit
+https://github.com/endomorphosis/fireproof_kit
 
 for python model manager library visit: 
 https://github.com/endomorphosis/ipfs_model_manager/
