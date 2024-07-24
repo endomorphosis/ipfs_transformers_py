@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ipfs_transformers"
+version = "0.0.1"
+authors = [
+  { name="Benjamin Barber", email="starworks5@gmail.com" },
+]
+description = "A wrapper around huggingface transformers, invoking an IPFS model manager."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: POSIX :: Linux",
+]
+[project.urls]
+Homepage = "https://github.com/endomorphosis/ipfs_transformers"
+Issues = "https://github.com/endomorphosis/ipfs_transformers/issues"
