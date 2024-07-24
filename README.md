@@ -1,42 +1,4 @@
-# IPFS Huggingface Bridge
-
-for transformers.js visit:                          
-https://github.com/endomorphosis/ipfs_transformers_js
-
-for huggingface datasets python library visit:
-https://github.com/endomorphosis/ipfs_datasets
-
-for faiss KNN index python library visit:
-https://github.com/endomorphosis/ipfs_faiss
-
-for orbitdb_kit nodejs library visit:
-https://github.com/endomorphosis/orbitdb_kit/
-
-for python model manager library visit: 
-https://github.com/endomorphosis/ipfs_model_manager/
-
-for nodejs model manager library visit: 
-https://github.com/endomorphosis/ipfs_model_manager_js/
-
-for nodejs ipfs huggingface scraper with pinning services visit:
-https://github.com/endomorphosis/ipfs_huggingface_scraper/
-
-for ipfs huggingface agents visit:
-https://github.com/endomorphosis/ipfs_agents
-
-for ipfs huggingface accelerate visit:
-https://github.com/endomorphosis/ipfs_accelerate
-
-for ipfs_kit visit:
-https://github.com/endomorphosis/ipfs_kit
-
-for ipfs_kit_js visit:
-https://github.com/endomorphosis/ipfs_kit_js
-
-Author - Benjamin Barber
-QA - Kevin De Haan
-
-# About
+# IPFS Huggingface Transformers
 
 This is a model manager and wrapper for huggingface, looks up a index of models from an collection of models, and will download a model from either https/s3/ipfs, depending on which source is the fastest.
 
@@ -79,26 +41,44 @@ model = T5Model.from_auto_download(
 )
 ~~~
 
-# To scrape huggingface
 
-with interactive prompt:
+# IPFS Huggingface Bridge
 
-~~~shell
-node scraper.js [source] [model name]
-~~~
+for transformers.js visit:                          
+https://github.com/endomorphosis/ipfs_transformers_js
 
-~~~shell
-node scraper.js 
-~~~
+for huggingface datasets python library visit:
+https://github.com/endomorphosis/ipfs_datasets
 
-import a model already defined:
+for faiss KNN index python library visit:
+https://github.com/endomorphosis/ipfs_faiss
 
-~~~shell
-node scraper.js hf "modelname" (as defined in your .json files)
-~~~
+for orbitdb_kit nodejs library visit:
+https://github.com/endomorphosis/orbitdb_kit/
 
-import all models previously defined:
+for fireproof_kit nodejs library visit:
+https://github.com/endomorphosis/fireproof_kit
 
-~~~shell
-node scraper.js hf 
-~~~
+for python model manager library visit: 
+https://github.com/endomorphosis/ipfs_model_manager/
+
+for nodejs model manager library visit: 
+https://github.com/endomorphosis/ipfs_model_manager_js/
+
+for nodejs ipfs huggingface scraper with pinning services visit:
+https://github.com/endomorphosis/ipfs_huggingface_scraper/
+
+for ipfs huggingface agents visit:
+https://github.com/endomorphosis/ipfs_agents
+
+for ipfs huggingface accelerate visit:
+https://github.com/endomorphosis/ipfs_accelerate
+
+for ipfs_kit visit:
+https://github.com/endomorphosis/ipfs_kit
+
+for ipfs_kit_js visit:
+https://github.com/endomorphosis/ipfs_kit_js
+
+Author - Benjamin Barber
+QA - Kevin De Haan

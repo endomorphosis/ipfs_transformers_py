@@ -1,5 +1,6 @@
 import os
-# TODO: Make template match updates from ipfs_transformers.py
+import asyncio
+
 class AutoDownloadModel():
 	def __init__(self, collection=None, meta=None):
 		if os.getuid() == 0:
@@ -49,6 +50,7 @@ class AutoDownloadModel():
 					self.role = meta["role"]
 				else:
 					self.role = "leecher"
+					pass
 			else:
 				self.local_path = os.path.join(os.getenv("HOME") , ".cache/huggingface/")
 				self.ipfs_path = os.path.join(os.getenv("HOME") , ".cache/ipfs/")
@@ -60,10 +62,14 @@ class AutoDownloadModel():
 					"s3_cfg": self.s3cfg,
 					"role": self.role
 				}
-		from model_manager import model_manager as model_manager
-		self.model_manager = model_manager(collection, meta)
+				pass
+			pass
+		
+		import ipfs_model_manager 
+		self.model_manager = ipfs_model_manager.ipfs_model_manager(resources=collection, meta=meta)
 		self.model_manager.load_collection_cache()
-		self.model_manager.state()
+		self.model_manager.load_collection()		
+		self.model_manager.state(src = 'local')
 				
 	def download(self, **kwargs):
 		# NOTE: Add kwarg for output directory where downloads are stored
@@ -72,7 +78,8 @@ class AutoDownloadModel():
 		# if "ipfs_path" in kwargs:
 		# 	self.ipfs_path = kwargs["ipfs_path"]
 		
-
+		# self.model_manager.run_once()
+		asyncio.run(self.model_manager.run_once())
 		model_name = None
 		cid = None
 		if "model_name" in kwargs:
