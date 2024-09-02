@@ -1,15 +1,15 @@
 from setuptools import setup
 
 setup(
-	name='ipfs_transformers',
+	name='ipfs_transformers_py',
 	version='0.0.3',
 	packages=[
-        'ipfs_transformers',
+        'ipfs_transformers_py',
 	],
 	install_requires=[
-                'orbitdb_kit@git+https://github.com/endomorphosis/orbitdb_kit.git',
-                'ipfs_kit@git+https://github.com/endomorphosis/ipfs_kit.git',
-                'ipfs_model_manager@git+https://github.com/endomorphosis/ipfs_model_manager.git',
+                'orbitdb_kit_py',
+                'ipfs_kit_py',
+                'ipfs_model_manager_py',
                 'transformers',
                 'torch',
                 'torchvision',
