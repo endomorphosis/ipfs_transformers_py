@@ -1,5 +1,5 @@
 from transformers import AutoModel
-from ipfs_transformers import AutoModel
+from ipfs_transformers_py import AutoModel
 
 model = AutoModel.from_auto_download("bge-small-en-v1.5")  
 print(dir(model))

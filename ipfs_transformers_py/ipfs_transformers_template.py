@@ -60,7 +60,7 @@ class AutoDownloadModel():
 					"s3_cfg": self.s3cfg,
 					"role": self.role
 				}
-		from ipfs_transformers.model_manager_bak import model_manager as model_manager
+		from ipfs_transformers_py.model_manager_bak import model_manager as model_manager
 		self.model_manager = model_manager(collection, meta)
 		self.model_manager.load_collection_cache()
 		self.model_manager.state()
