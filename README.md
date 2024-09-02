@@ -40,6 +40,7 @@ model = T5Model.from_auto_download(
     }
 )
 ~~~
+![image](https://github.com/user-attachments/assets/19cd87d5-d049-467c-a5ea-b53a636b6422)
 
 
 # IPFS Huggingface Bridge
