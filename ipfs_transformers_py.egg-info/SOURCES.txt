@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+ipfs_transformers_py/__init__.py
+ipfs_transformers_py/ipfs_kit.py
+ipfs_transformers_py/ipfs_transformers.py
+ipfs_transformers_py/ipfs_transformers_generator.py
+ipfs_transformers_py/ipfs_transformers_template.py
+ipfs_transformers_py.egg-info/PKG-INFO
+ipfs_transformers_py.egg-info/SOURCES.txt
+ipfs_transformers_py.egg-info/dependency_links.txt
+ipfs_transformers_py.egg-info/top_level.txt
